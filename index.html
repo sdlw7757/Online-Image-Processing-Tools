@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>图片在线处理</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">图片在线处理</div>
+        <nav class="topnav" aria-label="主导航">
+            <a href="#features">功能</a>
+            <a href="#how-to">使用方法</a>
+            <a href="#tools">工具</a>
+            <a href="#faq">常见问题</a>
+        </nav>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar" aria-label="处理工具">
+            <h2 class="sidebar-title">处理工具</h2>
+            <nav class="tool-nav">
+                <ul>
+                    <li><button class="tool-item" data-tool="format">格式转换 <span class="sub">(JPG/PNG/WebP)</span></button></li>
+                    <li><button class="tool-item" data-tool="resize">调整尺寸 <span class="sub">(像素/比例)</span></button></li>
+                    <li><button class="tool-item" data-tool="compress">图片压缩 <span class="sub">(减小体积)</span></button></li>
+                    <li><button class="tool-item" data-tool="edit">图片编辑 <span class="sub">(亮度/对比/饱和)</span></button></li>
+                    <li><button class="tool-item" data-tool="crop">图片裁剪 <span class="sub">(自由/按比例)</span></button></li>
+                    <li><button class="tool-item" data-tool="ico">ICO 转换 <span class="sub">(生成图标)</span></button></li>
+                    <li><button class="tool-item" data-tool="batch">批量处理 <span class="sub">(多图)</span></button></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main" id="features">
+            <section class="uploader" aria-label="上传图片">
+                <h1 class="section-title">上传图片</h1>
+                <p class="hint">支持 JPG、PNG、BMP、WebP 等格式，单个文件大小不超过 <strong>50MB</strong>，先预览后下载。（注意：浏览器会将文件下载到默认下载目录）</p>
+
+                <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="拖放图片到此处或点击选择">
+                    <div class="dropzone-inner">
+                        <div class="drop-icon" aria-hidden="true">🖼️</div>
+                        <p class="drop-title">拖放图片到此处</p>
+                        <p class="drop-sub">或</p>
+                        <button id="selectBtn" class="primary-btn" type="button">选择图片文件</button>
+                        <input id="fileInput" type="file" accept="image/*" multiple hidden />
+                    </div>
+                </div>
+
+                <div id="fileList" class="file-list" aria-live="polite" aria-atomic="true"></div>
+            </section>
+
+            <section class="controls" aria-label="处理控制面板">
+                <h2 class="section-title">处理设置</h2>
+                <div class="controls-grid">
+                    <div class="control">
+                        <label for="toolSelect">工具</label>
+                        <select id="toolSelect">
+                            <option value="format">格式转换</option>
+                            <option value="resize">调整尺寸</option>
+                            <option value="compress">图片压缩</option>
+                            <option value="edit">图片编辑</option>
+                            <option value="crop">图片裁剪</option>
+                            <option value="ico">ICO 转换</option>
+                            <option value="batch">批量处理</option>
+                        </select>
+                    </div>
+
+                    <div class="control">
+                        <label for="formatSelect">输出格式</label>
+                        <select id="formatSelect">
+                            <option value="image/jpeg">JPG</option>
+                            <option value="image/png">PNG</option>
+                            <option value="image/webp">WebP</option>
+                            
+                        </select>
+                    </div>
+
+                    <div class="control" data-show="compress format">
+                        <label for="qualityRange">质量 (<span id="qualityVal">1.0</span>)</label>
+                        <input id="qualityRange" type="range" min="0.1" max="1" step="0.05" value="1.0" />
+                    </div>
+
+                    <div class="control" data-show="resize">
+                        <label>
+                            <span id="dimensionType">调整尺寸</span>
+                        </label>
+                        <div class="dual">
+                            <select id="unitSelect">
+                                <option value="pixels">像素 (px)</option>
+                                <option value="percentage">百分比 (%)</option>
+                            </select>
+                            <input id="widthInput" type="number" min="1" placeholder="宽" step="1" />
+                            <input id="heightInput" type="number" min="1" placeholder="高" step="1" />
+                            <label class="inline"><input id="lockRatio" type="checkbox" checked /> 锁定比例</label>
+                        </div>
+                    </div>
+
+                    <div class="control" data-show="edit">
+                        <label for="brightnessRange">亮度 (<span id="brightnessVal">100%</span>)</label>
+                        <input id="brightnessRange" type="range" min="50" max="150" step="1" value="100" />
+                    </div>
+                    <div class="control" data-show="edit">
+                        <label for="contrastRange">对比度 (<span id="contrastVal">100%</span>)</label>
+                        <input id="contrastRange" type="range" min="50" max="150" step="1" value="100" />
+                    </div>
+                    <div class="control" data-show="edit">
+                        <label for="saturateRange">饱和度 (<span id="saturateVal">100%</span>)</label>
+                        <input id="saturateRange" type="range" min="0" max="200" step="1" value="100" />
+                    </div>
+
+                    <div class="control" data-show="crop">
+                        <label for="aspectSelect">裁剪比例</label>
+                        <select id="aspectSelect">
+                            <option value="free">自由</option>
+                            <option value="1:1">1:1</option>
+                            <option value="4:3">4:3</option>
+                            <option value="16:9">16:9</option>
+                        </select>
+                        <div class="hint">在预览画布上拖拽选择区域；固定比例时自动约束。</div>
+                    </div>
+
+                    <div class="control" data-show="ico">
+                        <label>ICO 尺寸（可多选）</label>
+                        <div id="icoSizes" class="checkbox-group">
+                            <label><input type="checkbox" value="16"> 16×16</label>
+                            <label><input type="checkbox" value="32" checked> 32×32</label>
+                            <label><input type="checkbox" value="48"> 48×48</label>
+                            <label><input type="checkbox" value="64"> 64×64</label>
+                            <label><input type="checkbox" value="128"> 128×128</label>
+                            <label><input type="checkbox" value="256"> 256×256</label>
+                        </div>
+                        <div class="hint">将按所选尺寸打包为一个 .ico 文件。</div>
+                    </div>
+
+                    <div class="actions">
+                        <button id="clearBtn" class="secondary-btn" type="button" title="清空已选文件和预览">清空</button>
+                        <button id="previewBtn" class="secondary-btn" type="button">预览</button>
+                        <button id="prevBtn" class="secondary-btn" type="button" title="上一张">上一张</button>
+                        <button id="nextBtn" class="secondary-btn" type="button" title="下一张">下一张</button>
+                        <span id="previewCounter" class="hint"></span>
+                        <button id="downloadBtn" class="primary-btn" type="button">下载处理结果</button>
+                        <button id="downloadAllBtn" class="primary-btn ghost" type="button" title="对所有文件应用设置并分别下载">批量处理并下载</button>
+                        <button id="resetBtn" class="secondary-btn" type="button">初始化</button>
+                    </div>
+                </div>
+
+                <div class="preview-wrap">
+                    <div id="formatIndicator" class="format-indicator"></div>
+                    <canvas id="previewCanvas" class="preview" aria-label="预览画布"></canvas>
+                </div>
+            </section>
+
+            <section id="how-to" class="info-section">
+                <h2>使用方法</h2>
+                <ol>
+                    <li>在左侧选择需要的处理工具。</li>
+                    <li>将图片拖拽到右侧上传区域，或点击按钮选择文件。</li>
+                    <li>在“处理设置”中调整参数，点击“预览/下载”。</li>
+                </ol>
+            </section>
+
+            <section id="tools" class="info-section">
+                <h2>工具</h2>
+                <p>包含格式转换、尺寸调整、压缩、编辑、裁剪、ICO 转换与批量处理等入口。</p>
+            </section>
+
+            <section id="faq" class="info-section">
+                <h2>常见问题</h2>
+                <details>
+                    <summary>我的图片会被上传到服务器吗？</summary>
+                    <p>不会。所有处理都在浏览器本地完成，不会将图片上传或保存到任何服务器。</p>
+                </details>
+                <details>
+                    <summary>支持哪些格式与文件大小？</summary>
+                    <p>支持 JPG、PNG、WebP、BMP 等常见格式；单个文件最大 50MB。</p>
+                </details>
+
+                <details>
+                    <summary>ICO 转换是否支持多尺寸？</summary>
+                    <p>支持。可勾选 16/32/48/64/128/256 等尺寸，导出为一个包含多图像条目的 .ico 文件。</p>
+                </details>
+                <details>
+                    <summary>批量拖拽/多次选择不能叠加怎么办？</summary>
+                    <p>已支持叠加添加与去重。如仍异常，请尝试刷新页面或更换浏览器；也可使用“清空”后重新添加。</p>
+                </details>
+                <details>
+                    <summary>预览或导出失败怎么排查？</summary>
+                    <p>先检查文件大小/格式是否受支持，关闭浏览器扩展后重试，或换用最新版本的 Chrome/Edge/Firefox。若问题仍在，请提供图片样例与设置参数。</p>
+                </details>
+                <details>
+                    <summary>为什么下载的文件不在原图片目录？</summary>
+                    <p>由于浏览器安全限制，所有文件都会下载到浏览器的默认下载目录。这是浏览器的安全机制，无法更改。您可以下载完成后手动将文件移动到所需位置。</p>
+                </details>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <span>© 2025 图片在线处理</span>
+    </footer>
+
+    <script src="script.js"></script>
+    <noscript>需要启用 JavaScript 以获得最佳体验。</noscript>
+    
+</body>
+</html>
+
+
